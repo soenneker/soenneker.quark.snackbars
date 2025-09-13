@@ -1,167 +1,81 @@
 @page "/advanced"
 
 <h1>Advanced Snackbar Examples</h1>
-<p class="lead">This page demonstrates how to use SnackbarHeader and SnackbarFooter components for complex snackbar layouts.</p>
+<p class="lead">Complex snackbar layouts with headers, bodies, and footers.</p>
 
-<!-- SnackbarStack with different positioning for this demo -->
-<SnackbarStack @ref="snackbarStack" Position="SnackbarLocation.TopEnd" DefaultDelay="8000">
+<SnackbarStack @ref="_snackbarStack" Position="SnackbarLocation.TopEnd" DefaultDelay="8000">
 </SnackbarStack>
 
-<div class="alert alert-info">
-    <strong>Note:</strong> This demo uses a SnackbarStack positioned at <code>TopEnd</code> with a longer default delay (8 seconds) to better showcase the complex layouts.
-</div>
-
 <div class="row">
     <div class="col-12">
-        <h2>Simple Snackbars (Current Implementation)</h2>
-        <p>These use the simple message-based approach:</p>
+        <h2>Complex Content Examples</h2>
+        <p>Snackbars with structured content using SnackbarHeader, SnackbarBody, and SnackbarFooter:</p>
         
         <div class="d-flex flex-wrap gap-2 mb-4">
-            <Button Color="Color.Primary" OnClick="@(() => ShowSimpleSnackbar("Simple success message", Color.Success))">
-                Simple Success
+            <Button Color="Color.Success" OnClick="@ShowSuccessWithHeader">
+                Success with Header
             </Button>
-            <Button Color="Color.Warning" OnClick="@(() => ShowSimpleSnackbar("Simple warning message", Color.Warning))">
-                Simple Warning
+            <Button Color="Color.Info" OnClick="@ShowInfoWithFooter">
+                Info with Footer
+            </Button>
+            <Button Color="Color.Warning" OnClick="@ShowCompleteLayout">
+                Complete Layout
             </Button>
         </div>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-12">
-        <h2>Complex Snackbars with Header and Footer</h2>
-        <p>These demonstrate how to use SnackbarHeader and SnackbarFooter for more complex layouts:</p>
-        
-        <div class="d-flex flex-wrap gap-2 mb-4">
-            <Button Color="Color.Info" OnClick="@ShowComplexSnackbar">
-                Complex Snackbar
-            </Button>
-            <Button Color="Color.Success" OnClick="@ShowSnackbarWithHeader">
-                With Header Only
-            </Button>
-            <Button Color="Color.Warning" OnClick="@ShowSnackbarWithFooter">
-                With Footer Only
-            </Button>
-            <Button Color="Color.Danger" OnClick="@ShowSnackbarWithActions">
-                With Action Buttons
-            </Button>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
-        <h2>Code Examples</h2>
-        
-        <div class="accordion" id="codeAccordion">
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#simpleCode">
-                        Simple Snackbar
-                    </button>
-                </h2>
-                <div id="simpleCode" class="accordion-collapse collapse show" data-bs-parent="#codeAccordion">
-                    <div class="accordion-body">
-                        <pre><code>await snackbarStack.Push("Your message here", Color.Success);</code></pre>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#complexCode">
-                        Complex Snackbar
-                    </button>
-                </h2>
-                <div id="complexCode" class="accordion-collapse collapse" data-bs-parent="#codeAccordion">
-                    <div class="accordion-body">
-                        <p>Use the <code>Push</code> method with a <code>RenderFragment</code> parameter to create complex snackbars with header, body, and footer components.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <h3>Usage</h3>
+        <p>Use the <code>Push</code> method with a <code>RenderFragment</code> to create complex snackbars with structured content.</p>
     </div>
 </div>
 
 @code {
-    private SnackbarStack? snackbarStack;
+    private SnackbarStack? _snackbarStack;
 
-    private async Task ShowSimpleSnackbar(string message, Color color)
+    private async Task ShowSuccessWithHeader()
     {
-        if (snackbarStack != null)
+        if (_snackbarStack != null)
         {
-            await snackbarStack.Push(message, color);
-        }
-    }
-
-    private async Task ShowComplexSnackbar()
-    {
-        if (snackbarStack != null)
-        {
-            await snackbarStack.Push(@<div>
+            await _snackbarStack.Push(@<div>
                 <SnackbarHeader>
                     <strong>Success!</strong>
-                    <SnackbarAction Clicked="@(() => { })">×</SnackbarAction>
                 </SnackbarHeader>
                 <SnackbarBody>
-                    Your operation completed successfully! This is a more complex snackbar with header, body, and footer.
+                    Your operation completed successfully.
                 </SnackbarBody>
-                <SnackbarFooter>
-                    <small class="text-muted">2 minutes ago</small>
-                </SnackbarFooter>
             </div>, Color.Success);
         }
     }
 
-    private async Task ShowSnackbarWithHeader()
+    private async Task ShowInfoWithFooter()
     {
-        if (snackbarStack != null)
+        if (_snackbarStack != null)
         {
-            await snackbarStack.Push(@<div>
-                <SnackbarHeader>
-                    <strong>Information</strong>
-                    <SnackbarAction Clicked="@(() => { })">×</SnackbarAction>
-                </SnackbarHeader>
-                <SnackbarBody>
-                    This snackbar has a header with a title and close button.
-                </SnackbarBody>
-            </div>, Color.Info);
-        }
-    }
-
-    private async Task ShowSnackbarWithFooter()
-    {
-        if (snackbarStack != null)
-        {
-            await snackbarStack.Push(@<div>
+            await _snackbarStack.Push(@<div>
                 <SnackbarBody>
                     This snackbar has a footer with additional information.
                 </SnackbarBody>
                 <SnackbarFooter>
-                    <small class="text-muted">Last updated: @DateTime.Now.ToString("HH:mm")</small>
+                    <small class="text-muted">@DateTime.Now.ToString("HH:mm:ss")</small>
                 </SnackbarFooter>
-            </div>, Color.Warning);
+            </div>, Color.Info);
         }
     }
 
-    private async Task ShowSnackbarWithActions()
+    private async Task ShowCompleteLayout()
     {
-        if (snackbarStack != null)
+        if (_snackbarStack != null)
         {
-            await snackbarStack.Push(@<div>
+            await _snackbarStack.Push(@<div>
                 <SnackbarHeader>
-                    <strong>Action Required</strong>
+                    <strong>Complete Example</strong>
                 </SnackbarHeader>
                 <SnackbarBody>
-                    Do you want to proceed with this action?
+                    This snackbar demonstrates all three components working together.
                 </SnackbarBody>
                 <SnackbarFooter>
-                    <div class="d-flex gap-2">
-                        <Button Color="Color.Success" Size="Size.Small" OnClick="@(() => { })">Yes</Button>
-                        <Button Color="Color.Secondary" Size="Size.Small" OnClick="@(() => { })">No</Button>
-                    </div>
+                    <small class="text-muted">Header + Body + Footer</small>
                 </SnackbarFooter>
-            </div>, Color.Danger);
+            </div>, Color.Warning);
         }
     }
 }

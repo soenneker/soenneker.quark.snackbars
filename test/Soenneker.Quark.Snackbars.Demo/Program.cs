@@ -9,6 +9,7 @@ using Microsoft.JSInterop;
 using Serilog;
 using Serilog.Debugging;
 using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
+using Soenneker.Quark.Snackbars.Registrars;
 
 namespace Soenneker.Quark.Snackbars.Demo;
 
@@ -29,6 +30,8 @@ public sealed class Program
             {
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
+
+            builder.Services.AddSnackbarAsScoped();
 
 
             WebAssemblyHost host = builder.Build();

@@ -33,6 +33,13 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>icon.png</PackageIcon>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild></PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="NewFolder\**" />
+      <Content Remove="NewFolder\**" />
+      <EmbeddedResource Remove="NewFolder\**" />
+      <None Remove="NewFolder\**" />
+    </ItemGroup>
     
     <ItemGroup>
         <None Include="..\README.md" Pack="true" PackagePath="\" />
@@ -40,9 +47,11 @@
         <None Include="..\icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
+
     <ItemGroup>
-        <PackageReference Include="Soenneker.Quark.Components" Version="3.0.4" />
+        <PackageReference Include="Soenneker.Quark.Buttons" Version="3.0.9" />
         <PackageReference Include="Soenneker.Quark.Enums.Colors" Version="3.0.1" />
         <PackageReference Include="Soenneker.Quark.Divs" Version="3.0.5" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="3.0.1503" />
     </ItemGroup>
 </Project>

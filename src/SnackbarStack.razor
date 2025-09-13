@@ -1,13 +1,17 @@
-@using Soenneker.Quark.Enums.Colors
-@using Soenneker.Quark.Snackbars.Enums
 @using Soenneker.Quark.Divs
+@using Soenneker.Quark.Enums.Colors
+@using Soenneker.Quark.Snackbars.Abstract
+@using Soenneker.Quark.Snackbars.Dtos
+@using Soenneker.Quark.Snackbars.Enums
+@using Soenneker.Quark.Snackbars.Options
 @using Timer = System.Timers.Timer
 @inherits Soenneker.Quark.Components.Element
+@inject ISnackbarInterop SnackbarInterop
 
 <Div @attributes="BuildAttributes()" >
 	<CascadingValue Value="@this" IsFixed="true" >
 		@ChildContent
-		@foreach (NotificationItem item in notifications)
+		@foreach (SnackbarNotificationItem item in _notifications)
 		{
 			<Snackbar @key="@item.Key"
 			          Key="@item.Key"
@@ -29,8 +33,9 @@
 </Div>
 
 @code {
-	private readonly List<NotificationItem> notifications = new();
-	private readonly Dictionary<string, Timer> autoHideTimers = new();
+	private readonly List<SnackbarNotificationItem> _notifications = new();
+	private readonly Dictionary<string, Timer> _autoHideTimers = new();
+	private bool _isInitialized = false;
 
 	[Parameter]
 	public SnackbarLocation Position { get; set; } = SnackbarLocation.BottomEnd;
@@ -62,6 +67,16 @@
 		attributes["style"] = "z-index: 1055;";
 
 		return attributes;
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && !_isInitialized)
+		{
+			await SnackbarInterop.Initialize();
+			_isInitialized = true;
+		}
+		await base.OnAfterRenderAsync(firstRender);
 	}
 
     /// <summary>
@@ -96,7 +111,7 @@
 		var snackbarOptions = new SnackbarOptions();
 		options?.Invoke(snackbarOptions);
 
-		var item = new NotificationItem(snackbarOptions.Key ?? Guid.NewGuid()
+		var item = new SnackbarNotificationItem(snackbarOptions.Key ?? Guid.NewGuid()
 				.ToString(), message ?? "", null, // No title in simplified version
 			color ?? Color.Primary, content, // Use the content template
 			false, // No close button in simplified version
@@ -105,7 +120,7 @@
 			null, // No action text
 			snackbarOptions.HideDelay);
 
-		notifications.Add(item);
+		_notifications.Add(item);
 		await InvokeAsync(StateHasChanged);
 
 		// Set up auto-hide timer if delay is specified
@@ -120,32 +135,32 @@
 				await HandleClosed(item.Key, SnackbarCloseReason.None);
 			};
 			timer.Start();
-			autoHideTimers[item.Key] = timer;
+			_autoHideTimers[item.Key] = timer;
 		}
 	}
 
 	private async Task HandleClosed(string key, SnackbarCloseReason reason)
 	{
 		// Cancel auto-hide timer if it exists
-		if (autoHideTimers.TryGetValue(key, out Timer? timer))
+		if (_autoHideTimers.TryGetValue(key, out Timer? timer))
 		{
 			timer.Dispose();
-			autoHideTimers.Remove(key);
+			_autoHideTimers.Remove(key);
 		}
 
-		notifications.RemoveAll(x => x.Key == key);
+		_notifications.RemoveAll(x => x.Key == key);
 		await InvokeAsync(StateHasChanged);
 		await Closed.InvokeAsync(new SnackbarClosedEventArgs(key, reason));
 	}
 
 	protected override void Dispose(bool disposing)
 	{
-		foreach (Timer timer in autoHideTimers.Values)
+		foreach (Timer timer in _autoHideTimers.Values)
 		{
 			timer.Dispose();
 		}
 
-		autoHideTimers.Clear();
+		_autoHideTimers.Clear();
 	}
 	
 }

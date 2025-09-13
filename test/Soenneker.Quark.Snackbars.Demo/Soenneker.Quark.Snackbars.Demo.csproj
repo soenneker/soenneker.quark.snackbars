@@ -16,6 +16,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Soenneker.Quark.Snackbars.csproj" />
-    <ProjectReference Include="..\..\..\soenneker.quark.buttons\src\Soenneker.Quark.Buttons.csproj" />
   </ItemGroup>
 </Project>

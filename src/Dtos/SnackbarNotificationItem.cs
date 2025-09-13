@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Soenneker.Quark.Enums.Colors;
 
-namespace Soenneker.Quark.Snackbars;
+namespace Soenneker.Quark.Snackbars.Dtos;
 
 /// <summary>
 /// Represents a notification item in the snackbar stack.
@@ -17,7 +17,7 @@ namespace Soenneker.Quark.Snackbars;
 /// <param name="ActionText">Text for the action button.</param>
 /// <param name="HideDelay">Auto-hide delay in milliseconds.</param>
 /// <param name="Visible">Whether the notification is visible.</param>
-public sealed record NotificationItem(
+public sealed record SnackbarNotificationItem(
     string Key,
     string Message,
     string? Title,
@@ -29,4 +29,3 @@ public sealed record NotificationItem(
     string? ActionText,
     int? HideDelay,
     bool Visible = true);
-

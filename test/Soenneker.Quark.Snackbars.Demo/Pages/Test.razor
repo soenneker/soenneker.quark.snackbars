@@ -2,7 +2,7 @@
 
 <h1>Snackbar Test</h1>
 
-<SnackbarStack @ref="snackbarStack" Position="SnackbarLocation.TopEnd">
+<SnackbarStack @ref="_snackbarStack" Position="SnackbarLocation.TopEnd">
 </SnackbarStack>
 
 <Button Color="Color.Primary" OnClick="@TestSnackbar">
@@ -10,13 +10,13 @@
 </Button>
 
 @code {
-    private SnackbarStack? snackbarStack;
+    private SnackbarStack? _snackbarStack;
 
     private async Task TestSnackbar()
     {
-        if (snackbarStack != null)
+        if (_snackbarStack != null)
         {
-            await snackbarStack.Push("Test message", Color.Success);
+            await _snackbarStack.Push("Test message", Color.Success);
         }
     }
 }
