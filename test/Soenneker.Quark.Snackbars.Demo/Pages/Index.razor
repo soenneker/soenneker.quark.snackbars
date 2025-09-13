@@ -12,35 +12,92 @@
         </div>
     </div>
 
-    <!-- Snackbar Stack -->
-    <SnackbarStack @ref="_snackbarStack" Position="SnackbarLocation.TopEnd" Closed="@OnSnackbarClosed">
+    <!-- Snackbar Stack - This is the main component that manages all snackbars -->
+    <SnackbarStack @ref="snackbarStack" 
+                   Position="@currentPosition" 
+                   DefaultDelay="@defaultDelay"
+                   Closed="@OnSnackbarClosed">
     </SnackbarStack>
+
+    <!-- SnackbarStack Configuration -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>SnackbarStack Configuration</h2>
+            <p>The SnackbarStack component manages all snackbars and their positioning. Configure it below:</p>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Position:</label>
+                    <select class="form-select" @onchange="@OnPositionChanged">
+                        <option value="bottom-end" selected="@(currentPosition == SnackbarLocation.BottomEnd)">Bottom End</option>
+                        <option value="bottom-start" selected="@(currentPosition == SnackbarLocation.BottomStart)">Bottom Start</option>
+                        <option value="bottom" selected="@(currentPosition == SnackbarLocation.Bottom)">Bottom Center</option>
+                        <option value="top-end" selected="@(currentPosition == SnackbarLocation.TopEnd)">Top End</option>
+                        <option value="top-start" selected="@(currentPosition == SnackbarLocation.TopStart)">Top Start</option>
+                        <option value="top" selected="@(currentPosition == SnackbarLocation.Top)">Top Center</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Default Auto-Hide Delay (ms):</label>
+                    <input type="number" class="form-control" @bind="defaultDelay" min="1000" max="30000" step="1000" />
+                </div>
+            </div>
+            
+            <div class="alert alert-info">
+                <strong>Current Configuration:</strong> Position = @currentPosition.Value, Default Delay = @defaultDelay ms
+            </div>
+        </div>
+    </div>
 
     <!-- Basic Examples -->
     <div class="row mb-4">
         <div class="col-12">
             <h2>Basic Examples</h2>
-            <p>Click the buttons below to show different types of snackbars:</p>
+            <p>Click the buttons below to show different types of snackbars. Notice how they stack and position according to the SnackbarStack configuration:</p>
             
             <div class="d-flex flex-wrap gap-2 mb-3">
-                <Button Color="Color.Primary" OnClick="@(async () => await ShowSnackbar("Primary Snackbar", "This is a primary snackbar message", Color.Primary))">
+                <Button Color="Color.Primary" OnClick="@(async () => await ShowSnackbar("This is a primary snackbar message", Color.Primary))">
                     Primary
                 </Button>
-                <Button Color="Color.Secondary" OnClick="@(async () => await ShowSnackbar("Secondary Snackbar", "This is a secondary snackbar message", Color.Secondary))">
+                <Button Color="Color.Secondary" OnClick="@(async () => await ShowSnackbar("This is a secondary snackbar message", Color.Secondary))">
                     Secondary
                 </Button>
-                <Button Color="Color.Success" OnClick="@(async () => await ShowSnackbar("Success Snackbar", "Operation completed successfully!", Color.Success))">
+                <Button Color="Color.Success" OnClick="@(async () => await ShowSnackbar("Operation completed successfully!", Color.Success))">
                     Success
                 </Button>
-                <Button Color="Color.Danger" OnClick="@(async () => await ShowSnackbar("Error Snackbar", "Something went wrong!", Color.Danger))">
+                <Button Color="Color.Danger" OnClick="@(async () => await ShowSnackbar("Something went wrong!", Color.Danger))">
                     Danger
                 </Button>
-                <Button Color="Color.Warning" OnClick="@(async () => await ShowSnackbar("Warning Snackbar", "Please check your input", Color.Warning))">
+                <Button Color="Color.Warning" OnClick="@(async () => await ShowSnackbar("Please check your input", Color.Warning))">
                     Warning
                 </Button>
-                <Button Color="Color.Info" OnClick="@(async () => await ShowSnackbar("Info Snackbar", "Here's some useful information", Color.Info))">
+                <Button Color="Color.Info" OnClick="@(async () => await ShowSnackbar("Here's some useful information", Color.Info))">
                     Info
                 </Button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stacking Behavior Demo -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Stacking Behavior</h2>
+            <p>See how multiple snackbars stack and behave with different timing:</p>
+            
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <Button Color="Color.Info" OnClick="@ShowMultipleSnackbars">
+                    Show Multiple Snackbars
+                </Button>
+                <Button Color="Color.Warning" OnClick="@ShowRapidSnackbars">
+                    Rapid Fire (5 snackbars)
+                </Button>
+                <Button Color="Color.Success" OnClick="@ShowDifferentTimings">
+                    Different Auto-Hide Times
+                </Button>
+            </div>
+            
+            <div class="alert alert-warning">
+                <strong>Try this:</strong> Change the position above and then click "Show Multiple Snackbars" to see how the stack behaves in different positions.
             </div>
         </div>
     </div>
@@ -54,7 +111,7 @@
                 <div class="col-md-6">
                     <h4>Without Close Button</h4>
                     <p>Snackbars that auto-hide without a close button:</p>
-                    <Button Color="Color.Info" OnClick="@(async () => await ShowSnackbar("Auto-Hide", "This snackbar will auto-hide in 3 seconds", Color.Info, false, 3000))">
+                    <Button Color="Color.Info" OnClick="@(async () => await ShowSnackbar("This snackbar will auto-hide in 3 seconds", Color.Info, 3000))">
                         Auto-Hide (3s)
                     </Button>
                 </div>
@@ -62,8 +119,8 @@
                 <div class="col-md-6">
                     <h4>With Custom Title</h4>
                     <p>Snackbars with custom titles:</p>
-                    <Button Color="Color.Success" OnClick="@(async () => await ShowSnackbar("🎉 Congratulations!", "You have successfully completed the task!", Color.Success))">
-                        Custom Title
+                    <Button Color="Color.Success" OnClick="@(async () => await ShowSnackbar("🎉 You have successfully completed the task!", Color.Success))">
+                        Custom Message
                     </Button>
                 </div>
             </div>
@@ -80,7 +137,7 @@
                     <h4>Form Validation</h4>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address</label>
-                        <input type="email" class="form-control" id="email" @bind="_emailInput" placeholder="Enter email">
+                        <input type="email" class="form-control" id="email" @bind="emailInput" placeholder="Enter email">
                     </div>
                     <Button Color="Color.Primary" OnClick="@ValidateEmail">
                         Validate Email
@@ -115,19 +172,19 @@
                 <div class="col-md-6">
                     <h4>Different Button Sizes</h4>
                     <div class="d-flex flex-column gap-2 mb-3">
-                        <Button Color="Color.Primary" Size="Size.ExtraSmall" OnClick="@(async () => await ShowSnackbar("Extra Small", "This is an extra small button", Color.Primary))">
+                        <Button Color="Color.Primary" Size="Size.ExtraSmall" OnClick="@(async () => await ShowSnackbar("This is an extra small button", Color.Primary))">
                             Extra Small Button
                         </Button>
-                        <Button Color="Color.Success" Size="Size.Small" OnClick="@(async () => await ShowSnackbar("Small", "This is a small button", Color.Success))">
+                        <Button Color="Color.Success" Size="Size.Small" OnClick="@(async () => await ShowSnackbar("This is a small button", Color.Success))">
                             Small Button
                         </Button>
-                        <Button Color="Color.Info" Size="Size.Default" OnClick="@(async () => await ShowSnackbar("Default", "This is a default size button", Color.Info))">
+                        <Button Color="Color.Info" Size="Size.Default" OnClick="@(async () => await ShowSnackbar("This is a default size button", Color.Info))">
                             Default Button
                         </Button>
-                        <Button Color="Color.Warning" Size="Size.Large" OnClick="@(async () => await ShowSnackbar("Large", "This is a large button", Color.Warning))">
+                        <Button Color="Color.Warning" Size="Size.Large" OnClick="@(async () => await ShowSnackbar("This is a large button", Color.Warning))">
                             Large Button
                         </Button>
-                        <Button Color="Color.Danger" Size="Size.ExtraLarge" OnClick="@(async () => await ShowSnackbar("Extra Large", "This is an extra large button", Color.Danger))">
+                        <Button Color="Color.Danger" Size="Size.ExtraLarge" OnClick="@(async () => await ShowSnackbar("This is an extra large button", Color.Danger))">
                             Extra Large Button
                         </Button>
                     </div>
@@ -136,8 +193,8 @@
                 <div class="col-md-6">
                     <h4>Loading States</h4>
                     <div class="d-flex flex-column gap-2 mb-3">
-                        <Button Color="Color.Primary" Loading="@_isLoading1" OnClick="@HandleLoadingClick1">
-                            @if (_isLoading1)
+                        <Button Color="Color.Primary" Loading="@isLoading1" OnClick="@HandleLoadingClick1">
+                            @if (isLoading1)
                             {
                                 <span>Loading...</span>
                             }
@@ -146,13 +203,13 @@
                                 <span>Click to Load</span>
                             }
                         </Button>
-                        <Button Color="Color.Success" Loading="@_isLoading2" OnClick="@HandleLoadingClick2" LoadingTemplate="@CustomLoadingTemplate">
+                        <Button Color="Color.Success" Loading="@isLoading2" OnClick="@HandleLoadingClick2" LoadingTemplate="@CustomLoadingTemplate">
                             Process Data
                         </Button>
-                        <Button Color="Color.Info" Type="ButtonType.Submit" OnClick="@(async () => await ShowSnackbar("Submit", "Form submitted successfully!", Color.Success))">
+                        <Button Color="Color.Info" Type="ButtonType.Submit" OnClick="@(async () => await ShowSnackbar("Form submitted successfully!", Color.Success))">
                             Submit Form
                         </Button>
-                        <Button Color="Color.Secondary" Type="ButtonType.Reset" OnClick="@(async () => await ShowSnackbar("Reset", "Form has been reset", Color.Info))">
+                        <Button Color="Color.Secondary" Type="ButtonType.Reset" OnClick="@(async () => await ShowSnackbar("Form has been reset", Color.Info))">
                             Reset Form
                         </Button>
                     </div>
@@ -210,6 +267,14 @@
                     </h2>
                     <div id="advancedCode" class="accordion-collapse collapse" data-bs-parent="#codeAccordion">
                         <div class="accordion-body">
+                            <pre><code>&lt;Snackbar 
+    Title="Custom Title"
+    Color="Color.Info"
+    ShowCloseButton="true"
+    AutoHideDelay="5000"
+    OnClose="@(() => { })"&gt;
+    Your custom message here
+&lt;/Snackbar&gt;</code></pre>
                         </div>
                     </div>
                 </div>
@@ -219,18 +284,19 @@
 </div>
 
 @code {
-    private string _emailInput = "";
-    private SnackbarStack? _snackbarStack;
-    private bool _isLoading1 = false;
-    private bool _isLoading2 = false;
+    private string emailInput = "";
+    private SnackbarStack? snackbarStack;
+    private bool isLoading1 = false;
+    private bool isLoading2 = false;
+    private SnackbarLocation currentPosition = SnackbarLocation.BottomEnd;
+    private int defaultDelay = 5000;
 
-    private async Task ShowSnackbar(string title, string message, Color color, bool showCloseButton = true, int autoHideDelay = 5000)
+    private async Task ShowSnackbar(string message, Color color, int autoHideDelay = 5000)
     {
-        if (_snackbarStack != null)
+        if (snackbarStack != null)
         {
-            await _snackbarStack.ShowAsync(message, title, color, options =>
+            await snackbarStack.Push(message, color, options =>
             {
-                options.ShowClose = showCloseButton;
                 options.HideDelay = autoHideDelay;
             });
         }
@@ -242,39 +308,92 @@
         await Task.CompletedTask;
     }
 
+    private Task OnPositionChanged(ChangeEventArgs e)
+    {
+        var positionValue = e.Value?.ToString();
+        currentPosition = positionValue switch
+        {
+            "bottom-end" => SnackbarLocation.BottomEnd,
+            "bottom-start" => SnackbarLocation.BottomStart,
+            "bottom" => SnackbarLocation.Bottom,
+            "top-end" => SnackbarLocation.TopEnd,
+            "top-start" => SnackbarLocation.TopStart,
+            "top" => SnackbarLocation.Top,
+            _ => SnackbarLocation.BottomEnd
+        };
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task ShowMultipleSnackbars()
+    {
+        if (snackbarStack != null)
+        {
+            await snackbarStack.Push("First snackbar - Success!", Color.Success);
+            await Task.Delay(500);
+            await snackbarStack.Push("Second snackbar - Info!", Color.Info);
+            await Task.Delay(500);
+            await snackbarStack.Push("Third snackbar - Warning!", Color.Warning);
+        }
+    }
+
+    private async Task ShowRapidSnackbars()
+    {
+        if (snackbarStack != null)
+        {
+            for (int i = 1; i <= 5; i++)
+            {
+                await snackbarStack.Push($"Rapid snackbar #{i}", Color.Primary);
+                await Task.Delay(200);
+            }
+        }
+    }
+
+    private async Task ShowDifferentTimings()
+    {
+        if (snackbarStack != null)
+        {
+            await snackbarStack.Push("This will hide in 2 seconds", Color.Danger, options => options.HideDelay = 2000);
+            await Task.Delay(300);
+            await snackbarStack.Push("This will hide in 5 seconds", Color.Warning, options => options.HideDelay = 5000);
+            await Task.Delay(300);
+            await snackbarStack.Push("This will hide in 8 seconds", Color.Info, options => options.HideDelay = 8000);
+        }
+    }
+
     private async Task ValidateEmail()
     {
-        if (string.IsNullOrWhiteSpace(_emailInput))
+        if (string.IsNullOrWhiteSpace(emailInput))
         {
-            await ShowSnackbar("Validation Error", "Please enter an email address", Color.Danger);
+            await ShowSnackbar("Please enter an email address", Color.Danger);
         }
-        else if (!_emailInput.Contains("@"))
+        else if (!emailInput.Contains("@"))
         {
-            await ShowSnackbar("Invalid Email", "Please enter a valid email address", Color.Warning);
+            await ShowSnackbar("Please enter a valid email address", Color.Warning);
         }
         else
         {
-            await ShowSnackbar("Email Valid", "Email address is valid!", Color.Success);
+            await ShowSnackbar("Email address is valid!", Color.Success);
         }
     }
 
     private async Task ConfirmDelete()
     {
-        await ShowSnackbar("Delete Confirmed", "Item has been deleted successfully", Color.Success);
+        await ShowSnackbar("Item has been deleted successfully", Color.Success);
     }
 
     private async Task ShowProgress()
     {
-        await ShowSnackbar("Process Started", "Initializing process...", Color.Info);
+        await ShowSnackbar("Initializing process...", Color.Info);
         
         await Task.Delay(1000);
-        await ShowSnackbar("Processing", "Processing your request...", Color.Primary);
+        await ShowSnackbar("Processing your request...", Color.Primary);
         
         await Task.Delay(1500);
-        await ShowSnackbar("Almost Done", "Finalizing...", Color.Warning);
+        await ShowSnackbar("Finalizing...", Color.Warning);
         
         await Task.Delay(1000);
-        await ShowSnackbar("Complete", "Process completed successfully!", Color.Success);
+        await ShowSnackbar("Process completed successfully!", Color.Success);
     }
 
     private RenderFragment CustomLoadingTemplate => @<div>
@@ -284,51 +403,47 @@
 
     private async Task HandleLoadingClick1(MouseEventArgs args)
     {
-        _isLoading1 = true;
+        isLoading1 = true;
         StateHasChanged();
         
         // Simulate async operation
         await Task.Delay(3000);
         
-        _isLoading1 = false;
-        await ShowSnackbar("Loading Complete", "The loading operation has finished!", Color.Success);
+        isLoading1 = false;
+        await ShowSnackbar("The loading operation has finished!", Color.Success);
         StateHasChanged();
     }
 
     private async Task HandleLoadingClick2(MouseEventArgs args)
     {
-        _isLoading2 = true;
+        isLoading2 = true;
         StateHasChanged();
         
         // Simulate async operation
         await Task.Delay(2500);
         
-        _isLoading2 = false;
-        await ShowSnackbar("Data Processed", "Your data has been processed successfully!", Color.Success);
+        isLoading2 = false;
+        await ShowSnackbar("Your data has been processed successfully!", Color.Success);
         StateHasChanged();
     }
 
     private async Task ShowSnackbarWithOptions()
     {
-        if (_snackbarStack != null)
+        if (snackbarStack != null)
         {
-            await _snackbarStack.ShowAsync("This snackbar has custom options!", "Custom Options", Color.Info, options =>
+            await snackbarStack.Push("This snackbar has custom options!", Color.Info, options =>
             {
                 options.HideDelay = 8000;
-                options.ShowClose = true;
-                options.CloseText = "Dismiss";
             });
         }
     }
 
     private async Task ShowSnackbarWithAction()
     {
-        if (_snackbarStack != null)
+        if (snackbarStack != null)
         {
-            await _snackbarStack.ShowAsync("This snackbar has an action button!", "Action Available", Color.Warning, options =>
+            await snackbarStack.Push("This snackbar has custom timing!", Color.Warning, options =>
             {
-                options.ShowAction = true;
-                options.ActionText = "Undo";
                 options.HideDelay = 10000;
             });
         }
@@ -336,11 +451,10 @@
 
     private async Task ShowSnackbarWithoutClose()
     {
-        if (_snackbarStack != null)
+        if (snackbarStack != null)
         {
-            await _snackbarStack.ShowAsync("This snackbar will auto-hide without a close button!", "Auto-Hide Only", Color.Success, options =>
+            await snackbarStack.Push("This snackbar will auto-hide quickly!", Color.Success, options =>
             {
-                options.ShowClose = false;
                 options.HideDelay = 4000;
             });
         }

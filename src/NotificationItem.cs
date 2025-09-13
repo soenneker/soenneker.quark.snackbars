@@ -29,3 +29,4 @@ public sealed record NotificationItem(
     string? ActionText,
     int? HideDelay,
     bool Visible = true);
+

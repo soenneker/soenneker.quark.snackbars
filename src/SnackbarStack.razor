@@ -1,11 +1,13 @@
 @using Soenneker.Quark.Enums.Colors
 @using Soenneker.Quark.Snackbars.Enums
+@using Soenneker.Quark.Divs
+@using Timer = System.Timers.Timer
 @inherits Soenneker.Quark.Components.Element
 
-<div @attributes="BuildAttributes()" >
+<Div @attributes="BuildAttributes()" >
 	<CascadingValue Value="@this" IsFixed="true" >
 		@ChildContent
-		@foreach (var item in _notifications)
+		@foreach (NotificationItem item in notifications)
 		{
 			<Snackbar @key="@item.Key"
 			          Key="@item.Key"
@@ -13,42 +15,22 @@
 			          Color="@item.Color"
 			          AutoHideDelay="@(item.HideDelay ?? DefaultDelay)"
 			          Closed="@(async (e) => await HandleClosed(e.Key, e.CloseReason))" >
-				@if (!string.IsNullOrEmpty(item.Title))
+				@if (item.Content != null)
 				{
-					<SnackbarHeader>
-						<strong class="me-auto" >@item.Title</strong>
-						@if (item.ShowClose)
-						{
-							<SnackbarAction OnClick="@(async (e) => await HandleClosed(item.Key, SnackbarCloseReason.UserClosed))" >
-								@(item.CloseText ?? "×")
-							</SnackbarAction>
-						}
-					</SnackbarHeader>
+					@item.Content
 				}
-				<SnackbarBody>
-					@if (item.Content != null)
-					{
-						@item.Content
-					}
-					else
-					{
-						@item.Message
-					}
-
-					@if (item.ShowAction)
-					{
-						<SnackbarAction OnClick="@(async (e) => await HandleClosed(item.Key, SnackbarCloseReason.UserClosed))" >
-							@(item.ActionText ?? "Action")
-						</SnackbarAction>
-					}
-				</SnackbarBody>
+				else
+				{
+					@item.Message
+				}
 			</Snackbar>
 		}
 	</CascadingValue>
-</div>
+</Div>
 
 @code {
-	private readonly List<NotificationItem> _notifications = [];
+	private readonly List<NotificationItem> notifications = new();
+	private readonly Dictionary<string, Timer> autoHideTimers = new();
 
 	[Parameter]
 	public SnackbarLocation Position { get; set; } = SnackbarLocation.BottomEnd;
@@ -61,8 +43,8 @@
 
 	protected override Dictionary<string, object> BuildAttributes()
 	{
-		var attributes = base.BuildAttributes();
-		var classes = "toast-container position-fixed p-3";
+		Dictionary<string, object> attributes = base.BuildAttributes();
+		var classes = "snackbar-stack position-fixed p-3";
 
 		classes += Position.Value switch
 		{
@@ -82,28 +64,88 @@
 		return attributes;
 	}
 
-	public Task ShowAsync(string message, Color color, Action<SnackbarOptions>? configure = null)
+    /// <summary>
+    /// Pushes the message to the stack to be shown as a snackbar.
+    /// </summary>
+    /// <param name="message">Message text.</param>
+    /// <param name="color">Message color.</param>
+    /// <param name="options">Additional message options.</param>
+    /// <returns>Returns awaitable task.</returns>
+    public async ValueTask Push(string message, Color? color = null, Action<SnackbarOptions>? options = null)
+    {
+        await Push(message, null, color, options);
+    }
+
+    /// <summary>
+    /// Pushes custom content to the stack to be shown as a snackbar.
+    /// </summary>
+    /// <param name="content">Custom content template.</param>
+    /// <param name="color">Message color.</param>
+    /// <param name="options">Additional message options.</param>
+    /// <returns>Returns awaitable task.</returns>
+    public async ValueTask Push(RenderFragment content, Color? color = null, Action<SnackbarOptions>? options = null)
+    {
+        await Push(null, content, color, options);
+    }
+
+    /// <summary>
+    /// Internal method to push snackbar with either message or content.
+    /// </summary>
+    private async ValueTask Push(string? message, RenderFragment? content, Color? color, Action<SnackbarOptions>? options)
 	{
-		return ShowAsync(message, null, color, configure);
-	}
+		var snackbarOptions = new SnackbarOptions();
+		options?.Invoke(snackbarOptions);
 
-	public Task ShowAsync(string message, string? title, Color color, Action<SnackbarOptions>? configure = null)
-	{
-		var options = new SnackbarOptions();
-		configure?.Invoke(options);
+		var item = new NotificationItem(snackbarOptions.Key ?? Guid.NewGuid()
+				.ToString(), message ?? "", null, // No title in simplified version
+			color ?? Color.Primary, content, // Use the content template
+			false, // No close button in simplified version
+			null, // No close text
+			false, // No action button in simplified version
+			null, // No action text
+			snackbarOptions.HideDelay);
 
-		var item = new NotificationItem(options.Key ?? Guid.NewGuid()
-			.ToString(), message, title, color, options.Content, options.ShowClose, options.CloseText, options.ShowAction, options.ActionText, options.HideDelay);
+		notifications.Add(item);
+		await InvokeAsync(StateHasChanged);
 
-		_notifications.Add(item);
-		return InvokeAsync(StateHasChanged);
+		// Set up auto-hide timer if delay is specified
+		int delay = item.HideDelay ?? DefaultDelay;
+		if (delay > 0)
+		{
+			var timer = new Timer(delay);
+			timer.Elapsed += async (sender, e) =>
+			{
+				timer.Stop();
+				timer.Dispose();
+				await HandleClosed(item.Key, SnackbarCloseReason.None);
+			};
+			timer.Start();
+			autoHideTimers[item.Key] = timer;
+		}
 	}
 
 	private async Task HandleClosed(string key, SnackbarCloseReason reason)
 	{
-		_notifications.RemoveAll(x => x.Key == key);
+		// Cancel auto-hide timer if it exists
+		if (autoHideTimers.TryGetValue(key, out Timer? timer))
+		{
+			timer.Dispose();
+			autoHideTimers.Remove(key);
+		}
+
+		notifications.RemoveAll(x => x.Key == key);
 		await InvokeAsync(StateHasChanged);
 		await Closed.InvokeAsync(new SnackbarClosedEventArgs(key, reason));
 	}
 
+	protected override void Dispose(bool disposing)
+	{
+		foreach (Timer timer in autoHideTimers.Values)
+		{
+			timer.Dispose();
+		}
+
+		autoHideTimers.Clear();
+	}
+	
 }

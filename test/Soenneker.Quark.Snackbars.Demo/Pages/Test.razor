@@ -1,0 +1,22 @@
+@page "/test"
+
+<h1>Snackbar Test</h1>
+
+<SnackbarStack @ref="snackbarStack" Position="SnackbarLocation.TopEnd">
+</SnackbarStack>
+
+<Button Color="Color.Primary" OnClick="@TestSnackbar">
+    Test Snackbar
+</Button>
+
+@code {
+    private SnackbarStack? snackbarStack;
+
+    private async Task TestSnackbar()
+    {
+        if (snackbarStack != null)
+        {
+            await snackbarStack.Push("Test message", Color.Success);
+        }
+    }
+}

@@ -4,8 +4,10 @@
 @inherits Soenneker.Quark.Components.Element
 
 <CascadingValue Value="@this" IsFixed="true" >
-	<Div Class="toast" @attributes="BuildAttributes()" role="alert" aria-live="assertive" aria-atomic="true" >
-		@ChildContent
+	<Div @attributes="BuildAttributes()" role="alert" aria-live="assertive" aria-atomic="true" >
+		<Div @attributes="GetContentAttributes()" >
+			@ChildContent
+		</Div>
 	</Div>
 </CascadingValue>
 
@@ -31,15 +33,29 @@
 
 	protected override Dictionary<string, object> BuildAttributes()
 	{
-		var attributes = base.BuildAttributes();
-		var classes = $"toast bg-{Color.Value}";
+		Dictionary<string, object> attributes = base.BuildAttributes();
+		var classes = "snackbar-item snackbar-slide-in";
 
 		if (!Visible)
 			classes += " d-none";
 
 		attributes["class"] = AppendToClass(attributes.GetValueOrDefault("class")
 			?.ToString(), classes);
+		attributes["data-snackbar-key"] = Key;
 		return attributes;
+	}
+
+	private Dictionary<string, object> GetContentAttributes()
+	{
+		var attributes = new Dictionary<string, object>();
+		var classes = $"snackbar-content bg-{Color.Value} text-white rounded shadow p-3";
+		attributes["class"] = classes;
+		return attributes;
+	}
+
+	private string GetAnimationClass()
+	{
+		return "snackbar-slide-in";
 	}
 
 	public Task Show()
