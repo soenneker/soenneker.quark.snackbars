@@ -1,0 +1,23 @@
+@using Microsoft.AspNetCore.Components.Web
+@using Soenneker.Quark.Buttons
+@using Soenneker.Quark.Buttons.Enums
+
+@inherits Soenneker.Quark.Components.Element
+
+<Button @attributes="BuildAttributes()" @onclick:stopPropagation="true" Type="@ButtonType.Button">
+    @ChildContent
+</Button>
+
+@code {
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+        
+        var baseClasses = "btn-close";
+        attributes["class"] = AppendToClass(attributes.GetValueOrDefault("class")?.ToString(), baseClasses);
+        attributes["aria-label"] = "Close";
+        
+        return attributes;
+    }
+}

@@ -1,0 +1,353 @@
+﻿@page "/"
+@using Microsoft.Extensions.Logging
+
+@inject ILogger<Index> Logger
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" class="mb-3" />
+            <h1>Soenneker.Quark.Snackbars Demo</h1>
+            <p class="lead">This page demonstrates the Quark.Snackbars component with various configurations and use cases.</p>
+        </div>
+    </div>
+
+    <!-- Snackbar Stack -->
+    <SnackbarStack @ref="_snackbarStack" Position="SnackbarLocation.TopEnd" Closed="@OnSnackbarClosed">
+    </SnackbarStack>
+
+    <!-- Basic Examples -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Basic Examples</h2>
+            <p>Click the buttons below to show different types of snackbars:</p>
+            
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <Button Color="Color.Primary" OnClick="@(async () => await ShowSnackbar("Primary Snackbar", "This is a primary snackbar message", Color.Primary))">
+                    Primary
+                </Button>
+                <Button Color="Color.Secondary" OnClick="@(async () => await ShowSnackbar("Secondary Snackbar", "This is a secondary snackbar message", Color.Secondary))">
+                    Secondary
+                </Button>
+                <Button Color="Color.Success" OnClick="@(async () => await ShowSnackbar("Success Snackbar", "Operation completed successfully!", Color.Success))">
+                    Success
+                </Button>
+                <Button Color="Color.Danger" OnClick="@(async () => await ShowSnackbar("Error Snackbar", "Something went wrong!", Color.Danger))">
+                    Danger
+                </Button>
+                <Button Color="Color.Warning" OnClick="@(async () => await ShowSnackbar("Warning Snackbar", "Please check your input", Color.Warning))">
+                    Warning
+                </Button>
+                <Button Color="Color.Info" OnClick="@(async () => await ShowSnackbar("Info Snackbar", "Here's some useful information", Color.Info))">
+                    Info
+                </Button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Examples -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Feature Examples</h2>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Without Close Button</h4>
+                    <p>Snackbars that auto-hide without a close button:</p>
+                    <Button Color="Color.Info" OnClick="@(async () => await ShowSnackbar("Auto-Hide", "This snackbar will auto-hide in 3 seconds", Color.Info, false, 3000))">
+                        Auto-Hide (3s)
+                    </Button>
+                </div>
+                
+                <div class="col-md-6">
+                    <h4>With Custom Title</h4>
+                    <p>Snackbars with custom titles:</p>
+                    <Button Color="Color.Success" OnClick="@(async () => await ShowSnackbar("🎉 Congratulations!", "You have successfully completed the task!", Color.Success))">
+                        Custom Title
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Examples -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Interactive Examples</h2>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>Form Validation</h4>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" @bind="_emailInput" placeholder="Enter email">
+                    </div>
+                    <Button Color="Color.Primary" OnClick="@ValidateEmail">
+                        Validate Email
+                    </Button>
+                </div>
+                
+                <div class="col-md-4">
+                    <h4>Action Confirmation</h4>
+                    <p>Simulate an action that requires confirmation:</p>
+                    <Button Color="Color.Danger" OnClick="@ConfirmDelete">
+                        Delete Item
+                    </Button>
+                </div>
+                
+                <div class="col-md-4">
+                    <h4>Progress Updates</h4>
+                    <p>Show progress with multiple snackbars:</p>
+                    <Button Color="Color.Info" OnClick="@ShowProgress">
+                        Start Process
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Button Features with Snackbars -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Button Features with Snackbars</h2>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Different Button Sizes</h4>
+                    <div class="d-flex flex-column gap-2 mb-3">
+                        <Button Color="Color.Primary" Size="Size.ExtraSmall" OnClick="@(async () => await ShowSnackbar("Extra Small", "This is an extra small button", Color.Primary))">
+                            Extra Small Button
+                        </Button>
+                        <Button Color="Color.Success" Size="Size.Small" OnClick="@(async () => await ShowSnackbar("Small", "This is a small button", Color.Success))">
+                            Small Button
+                        </Button>
+                        <Button Color="Color.Info" Size="Size.Default" OnClick="@(async () => await ShowSnackbar("Default", "This is a default size button", Color.Info))">
+                            Default Button
+                        </Button>
+                        <Button Color="Color.Warning" Size="Size.Large" OnClick="@(async () => await ShowSnackbar("Large", "This is a large button", Color.Warning))">
+                            Large Button
+                        </Button>
+                        <Button Color="Color.Danger" Size="Size.ExtraLarge" OnClick="@(async () => await ShowSnackbar("Extra Large", "This is an extra large button", Color.Danger))">
+                            Extra Large Button
+                        </Button>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <h4>Loading States</h4>
+                    <div class="d-flex flex-column gap-2 mb-3">
+                        <Button Color="Color.Primary" Loading="@_isLoading1" OnClick="@HandleLoadingClick1">
+                            @if (_isLoading1)
+                            {
+                                <span>Loading...</span>
+                            }
+                            else
+                            {
+                                <span>Click to Load</span>
+                            }
+                        </Button>
+                        <Button Color="Color.Success" Loading="@_isLoading2" OnClick="@HandleLoadingClick2" LoadingTemplate="@CustomLoadingTemplate">
+                            Process Data
+                        </Button>
+                        <Button Color="Color.Info" Type="ButtonType.Submit" OnClick="@(async () => await ShowSnackbar("Submit", "Form submitted successfully!", Color.Success))">
+                            Submit Form
+                        </Button>
+                        <Button Color="Color.Secondary" Type="ButtonType.Reset" OnClick="@(async () => await ShowSnackbar("Reset", "Form has been reset", Color.Info))">
+                            Reset Form
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SnackbarStack Features -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>SnackbarStack Features</h2>
+            <p>Demonstrating different locations and options:</p>
+            
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <Button Color="Color.Primary" OnClick="@(async () => await ShowSnackbarWithOptions())">
+                    Show with Custom Options
+                </Button>
+                <Button Color="Color.Info" OnClick="@(async () => await ShowSnackbarWithAction())">
+                    Show with Action Button
+                </Button>
+                <Button Color="Color.Warning" OnClick="@(async () => await ShowSnackbarWithoutClose())">
+                    Show without Close Button
+                </Button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code Examples -->
+    <div class="row">
+        <div class="col-12">
+            <h2>Code Examples</h2>
+            
+            <div class="accordion" id="codeAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#basicCode">
+                            Basic Usage
+                        </button>
+                    </h2>
+                    <div id="basicCode" class="accordion-collapse collapse show" data-bs-parent="#codeAccordion">
+                        <div class="accordion-body">
+                            <pre><code>&lt;Snackbar Title="Success" Color="Color.Success"&gt;
+    Operation completed successfully!
+&lt;/Snackbar&gt;</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#advancedCode">
+                            Advanced Usage
+                        </button>
+                    </h2>
+                    <div id="advancedCode" class="accordion-collapse collapse" data-bs-parent="#codeAccordion">
+                        <div class="accordion-body">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _emailInput = "";
+    private SnackbarStack? _snackbarStack;
+    private bool _isLoading1 = false;
+    private bool _isLoading2 = false;
+
+    private async Task ShowSnackbar(string title, string message, Color color, bool showCloseButton = true, int autoHideDelay = 5000)
+    {
+        if (_snackbarStack != null)
+        {
+            await _snackbarStack.ShowAsync(message, title, color, options =>
+            {
+                options.ShowClose = showCloseButton;
+                options.HideDelay = autoHideDelay;
+            });
+        }
+    }
+
+    private async Task OnSnackbarClosed(SnackbarClosedEventArgs args)
+    {
+        Logger.LogInformation($"Snackbar {args.Key} closed with reason: {args.CloseReason}");
+        await Task.CompletedTask;
+    }
+
+    private async Task ValidateEmail()
+    {
+        if (string.IsNullOrWhiteSpace(_emailInput))
+        {
+            await ShowSnackbar("Validation Error", "Please enter an email address", Color.Danger);
+        }
+        else if (!_emailInput.Contains("@"))
+        {
+            await ShowSnackbar("Invalid Email", "Please enter a valid email address", Color.Warning);
+        }
+        else
+        {
+            await ShowSnackbar("Email Valid", "Email address is valid!", Color.Success);
+        }
+    }
+
+    private async Task ConfirmDelete()
+    {
+        await ShowSnackbar("Delete Confirmed", "Item has been deleted successfully", Color.Success);
+    }
+
+    private async Task ShowProgress()
+    {
+        await ShowSnackbar("Process Started", "Initializing process...", Color.Info);
+        
+        await Task.Delay(1000);
+        await ShowSnackbar("Processing", "Processing your request...", Color.Primary);
+        
+        await Task.Delay(1500);
+        await ShowSnackbar("Almost Done", "Finalizing...", Color.Warning);
+        
+        await Task.Delay(1000);
+        await ShowSnackbar("Complete", "Process completed successfully!", Color.Success);
+    }
+
+    private RenderFragment CustomLoadingTemplate => @<div>
+        <span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>
+        <span class="text-success">Processing...</span>
+    </div>;
+
+    private async Task HandleLoadingClick1(MouseEventArgs args)
+    {
+        _isLoading1 = true;
+        StateHasChanged();
+        
+        // Simulate async operation
+        await Task.Delay(3000);
+        
+        _isLoading1 = false;
+        await ShowSnackbar("Loading Complete", "The loading operation has finished!", Color.Success);
+        StateHasChanged();
+    }
+
+    private async Task HandleLoadingClick2(MouseEventArgs args)
+    {
+        _isLoading2 = true;
+        StateHasChanged();
+        
+        // Simulate async operation
+        await Task.Delay(2500);
+        
+        _isLoading2 = false;
+        await ShowSnackbar("Data Processed", "Your data has been processed successfully!", Color.Success);
+        StateHasChanged();
+    }
+
+    private async Task ShowSnackbarWithOptions()
+    {
+        if (_snackbarStack != null)
+        {
+            await _snackbarStack.ShowAsync("This snackbar has custom options!", "Custom Options", Color.Info, options =>
+            {
+                options.HideDelay = 8000;
+                options.ShowClose = true;
+                options.CloseText = "Dismiss";
+            });
+        }
+    }
+
+    private async Task ShowSnackbarWithAction()
+    {
+        if (_snackbarStack != null)
+        {
+            await _snackbarStack.ShowAsync("This snackbar has an action button!", "Action Available", Color.Warning, options =>
+            {
+                options.ShowAction = true;
+                options.ActionText = "Undo";
+                options.HideDelay = 10000;
+            });
+        }
+    }
+
+    private async Task ShowSnackbarWithoutClose()
+    {
+        if (_snackbarStack != null)
+        {
+            await _snackbarStack.ShowAsync("This snackbar will auto-hide without a close button!", "Auto-Hide Only", Color.Success, options =>
+            {
+                options.ShowClose = false;
+                options.HideDelay = 4000;
+            });
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("Snackbar demo page initialized");
+    }
+}

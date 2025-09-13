@@ -1,0 +1,109 @@
+@using Soenneker.Quark.Enums.Colors
+@using Soenneker.Quark.Snackbars.Enums
+@inherits Soenneker.Quark.Components.Element
+
+<div @attributes="BuildAttributes()" >
+	<CascadingValue Value="@this" IsFixed="true" >
+		@ChildContent
+		@foreach (var item in _notifications)
+		{
+			<Snackbar @key="@item.Key"
+			          Key="@item.Key"
+			          Visible="@item.Visible"
+			          Color="@item.Color"
+			          AutoHideDelay="@(item.HideDelay ?? DefaultDelay)"
+			          Closed="@(async (e) => await HandleClosed(e.Key, e.CloseReason))" >
+				@if (!string.IsNullOrEmpty(item.Title))
+				{
+					<SnackbarHeader>
+						<strong class="me-auto" >@item.Title</strong>
+						@if (item.ShowClose)
+						{
+							<SnackbarAction OnClick="@(async (e) => await HandleClosed(item.Key, SnackbarCloseReason.UserClosed))" >
+								@(item.CloseText ?? "×")
+							</SnackbarAction>
+						}
+					</SnackbarHeader>
+				}
+				<SnackbarBody>
+					@if (item.Content != null)
+					{
+						@item.Content
+					}
+					else
+					{
+						@item.Message
+					}
+
+					@if (item.ShowAction)
+					{
+						<SnackbarAction OnClick="@(async (e) => await HandleClosed(item.Key, SnackbarCloseReason.UserClosed))" >
+							@(item.ActionText ?? "Action")
+						</SnackbarAction>
+					}
+				</SnackbarBody>
+			</Snackbar>
+		}
+	</CascadingValue>
+</div>
+
+@code {
+	private readonly List<NotificationItem> _notifications = [];
+
+	[Parameter]
+	public SnackbarLocation Position { get; set; } = SnackbarLocation.BottomEnd;
+
+	[Parameter]
+	public int DefaultDelay { get; set; } = 5000;
+
+	[Parameter]
+	public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		var attributes = base.BuildAttributes();
+		var classes = "toast-container position-fixed p-3";
+
+		classes += Position.Value switch
+		{
+			"top" => " top-0 start-50 translate-middle-x",
+			"top-start" => " top-0 start-0",
+			"top-end" => " top-0 end-0",
+			"bottom" => " bottom-0 start-50 translate-middle-x",
+			"bottom-start" => " bottom-0 start-0",
+			"bottom-end" => " bottom-0 end-0",
+			_ => " bottom-0 end-0"
+		};
+
+		attributes["class"] = AppendToClass(attributes.GetValueOrDefault("class")
+			?.ToString(), classes);
+		attributes["style"] = "z-index: 1055;";
+
+		return attributes;
+	}
+
+	public Task ShowAsync(string message, Color color, Action<SnackbarOptions>? configure = null)
+	{
+		return ShowAsync(message, null, color, configure);
+	}
+
+	public Task ShowAsync(string message, string? title, Color color, Action<SnackbarOptions>? configure = null)
+	{
+		var options = new SnackbarOptions();
+		configure?.Invoke(options);
+
+		var item = new NotificationItem(options.Key ?? Guid.NewGuid()
+			.ToString(), message, title, color, options.Content, options.ShowClose, options.CloseText, options.ShowAction, options.ActionText, options.HideDelay);
+
+		_notifications.Add(item);
+		return InvokeAsync(StateHasChanged);
+	}
+
+	private async Task HandleClosed(string key, SnackbarCloseReason reason)
+	{
+		_notifications.RemoveAll(x => x.Key == key);
+		await InvokeAsync(StateHasChanged);
+		await Closed.InvokeAsync(new SnackbarClosedEventArgs(key, reason));
+	}
+
+}

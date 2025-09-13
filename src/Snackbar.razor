@@ -1,0 +1,64 @@
+@using Soenneker.Quark.Enums.Colors
+@using Soenneker.Quark.Divs
+@using Soenneker.Quark.Snackbars.Enums
+@inherits Soenneker.Quark.Components.Element
+
+<CascadingValue Value="@this" IsFixed="true" >
+	<Div Class="toast" @attributes="BuildAttributes()" role="alert" aria-live="assertive" aria-atomic="true" >
+		@ChildContent
+	</Div>
+</CascadingValue>
+
+@code {
+
+	[Parameter]
+	public string Key { get; set; } = "";
+
+	[Parameter]
+	public bool Visible { get; set; } = true;
+
+	[Parameter]
+	public Color Color { get; set; } = Color.Primary;
+
+	[Parameter]
+	public int AutoHideDelay { get; set; } = 5000;
+
+	[Parameter]
+	public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
+
+	[CascadingParameter]
+	protected SnackbarStack? ParentSnackbar { get; set; }
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		var attributes = base.BuildAttributes();
+		var classes = $"toast bg-{Color.Value}";
+
+		if (!Visible)
+			classes += " d-none";
+
+		attributes["class"] = AppendToClass(attributes.GetValueOrDefault("class")
+			?.ToString(), classes);
+		return attributes;
+	}
+
+	public Task Show()
+	{
+		if (Visible) return Task.CompletedTask;
+		Visible = true;
+		return InvokeAsync(StateHasChanged);
+	}
+
+	public Task Hide()
+	{
+		return Hide(SnackbarCloseReason.UserClosed);
+	}
+
+	protected async Task Hide(SnackbarCloseReason reason)
+	{
+		Visible = false;
+		await InvokeAsync(StateHasChanged);
+		await Closed.InvokeAsync(new SnackbarClosedEventArgs(Key, reason));
+	}
+
+}

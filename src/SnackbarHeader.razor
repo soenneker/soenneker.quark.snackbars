@@ -1,0 +1,17 @@
+@inherits Soenneker.Quark.Components.Element
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+        
+        var baseClasses = "toast-header";
+        attributes["class"] = AppendToClass(attributes.GetValueOrDefault("class")?.ToString(), baseClasses);
+        
+        return attributes;
+    }
+}
