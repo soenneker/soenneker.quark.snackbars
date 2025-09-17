@@ -10,7 +10,7 @@
     {
         Dictionary<string, object> attributes = base.BuildAttributes();
         
-        var baseClasses = "snackbar-footer";
+        const string baseClasses = "snackbar-footer";
         attributes["class"] = AppendToClass(attributes.GetValueOrDefault("class")?.ToString(), baseClasses);
         
         return attributes;

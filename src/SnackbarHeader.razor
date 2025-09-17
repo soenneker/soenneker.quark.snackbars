@@ -10,7 +10,7 @@
     {
         Dictionary<string, object> attributes = base.BuildAttributes();
         
-        var baseClasses = "toast-header";
+        const string baseClasses = "toast-header";
         attributes["class"] = AppendToClass(attributes.GetValueOrDefault("class")?.ToString(), baseClasses);
         
         return attributes;

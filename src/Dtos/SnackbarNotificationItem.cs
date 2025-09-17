@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using Soenneker.Quark.Enums.Colors;
+using Soenneker.Quark.Dtos.Colors;
 
 namespace Soenneker.Quark.Snackbars.Dtos;
 

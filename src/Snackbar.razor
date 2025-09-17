@@ -1,81 +1,75 @@
+@using Soenneker.Extensions.String
 @using Soenneker.Quark.Divs
-@using Soenneker.Quark.Enums.Colors
+@using Soenneker.Quark.Dtos.Colors
 @using Soenneker.Quark.Snackbars.Dtos
 @using Soenneker.Quark.Snackbars.Enums
 @inherits Soenneker.Quark.Components.Element
 
-<CascadingValue Value="@this" IsFixed="true" >
-	<Div @attributes="BuildAttributes()" role="alert" aria-live="assertive" aria-atomic="true" >
-		<Div @attributes="GetContentAttributes()" >
-			@ChildContent
-		</Div>
-	</Div>
+<CascadingValue Value="@this" IsFixed="true">
+    <Div @attributes="BuildAttributes()" role="alert" aria-live="assertive" aria-atomic="true">
+        <Div @attributes="GetContentAttributes()">
+            @ChildContent
+        </Div>
+    </Div>
 </CascadingValue>
 
 @code {
+    [Parameter] public string Key { get; set; } = "";
+    [Parameter] public bool Visible { get; set; } = true;
+    [Parameter] public Color Color { get; set; } = Color.Primary;
+    [Parameter] public int AutoHideDelay { get; set; } = 5000;
+    [Parameter] public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
 
-	[Parameter]
-	public string Key { get; set; } = "";
+    [CascadingParameter] protected SnackbarStack? ParentSnackbar { get; set; }
 
-	[Parameter]
-	public bool Visible { get; set; } = true;
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attrs = base.BuildAttributes();
 
-	[Parameter]
-	public Color Color { get; set; } = Color.Primary;
+        // base helpers from Component
+        EnsureClassAttr(attrs, "snackbar-item");
 
-	[Parameter]
-	public int AutoHideDelay { get; set; } = 5000;
+        if (Visible)
+            EnsureClassAttr(attrs, "snackbar-slide-in");
+        else
+            EnsureClassAttr(attrs, "d-none");
 
-	[Parameter]
-	public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
+        // ARIA visibility
+        SetOrRemove(attrs, "aria-hidden", !Visible, "true");
 
-	[CascadingParameter]
-	protected SnackbarStack? ParentSnackbar { get; set; }
+        // Stable key
+        if (Key.HasContent())
+            attrs["data-snackbar-key"] = Key!;
 
-	protected override Dictionary<string, object> BuildAttributes()
-	{
-		Dictionary<string, object> attributes = base.BuildAttributes();
-		var classes = "snackbar-item snackbar-slide-in";
+        return attrs;
+    }
 
-		if (!Visible)
-			classes += " d-none";
+    private Dictionary<string, object> GetContentAttributes()
+    {
+        var inner = new Dictionary<string, object>(1);
 
-		attributes["class"] = AppendToClass(attributes.GetValueOrDefault("class")
-			?.ToString(), classes);
-		attributes["data-snackbar-key"] = Key;
-		return attributes;
-	}
+        string bgClass = Color.IsTheme ? $"bg-{Color.Theme}" : $"bg-{Color.Css}";
+        var cls = $"snackbar-content {bgClass} text-white rounded shadow p-3";
+        inner["class"] = cls;
 
-	private Dictionary<string, object> GetContentAttributes()
-	{
-		var attributes = new Dictionary<string, object>();
-		var classes = $"snackbar-content bg-{Color.Value} text-white rounded shadow p-3";
-		attributes["class"] = classes;
-		return attributes;
-	}
+        return inner;
+    }
 
-	private string GetAnimationClass()
-	{
-		return "snackbar-slide-in";
-	}
+    public Task Show()
+    {
+        if (Visible) return Task.CompletedTask;
+        Visible = true;
+        return InvokeAsync(StateHasChanged);
+    }
 
-	public Task Show()
-	{
-		if (Visible) return Task.CompletedTask;
-		Visible = true;
-		return InvokeAsync(StateHasChanged);
-	}
+    public Task Hide() => Hide(SnackbarCloseReason.UserClosed);
 
-	public Task Hide()
-	{
-		return Hide(SnackbarCloseReason.UserClosed);
-	}
+    protected async Task Hide(SnackbarCloseReason reason)
+    {
+        if (!Visible) return;
 
-	protected async Task Hide(SnackbarCloseReason reason)
-	{
-		Visible = false;
-		await InvokeAsync(StateHasChanged);
-		await Closed.InvokeAsync(new SnackbarClosedEventArgs(Key, reason));
-	}
-
+        Visible = false;
+        await InvokeAsync(StateHasChanged);
+        await Closed.InvokeAsync(new SnackbarClosedEventArgs(Key, reason));
+    }
 }

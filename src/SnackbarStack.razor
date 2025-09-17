@@ -1,5 +1,5 @@
 @using Soenneker.Quark.Divs
-@using Soenneker.Quark.Enums.Colors
+@using Soenneker.Quark.Dtos.Colors
 @using Soenneker.Quark.Snackbars.Abstract
 @using Soenneker.Quark.Snackbars.Dtos
 @using Soenneker.Quark.Snackbars.Enums
@@ -33,12 +33,12 @@
 </Div>
 
 @code {
-	private readonly List<SnackbarNotificationItem> _notifications = new();
+	private readonly List<SnackbarNotificationItem> _notifications = [];
 	private readonly Dictionary<string, Timer> _autoHideTimers = new();
-	private bool _isInitialized = false;
+	private bool _isInitialized;
 
 	[Parameter]
-	public SnackbarLocation Position { get; set; } = SnackbarLocation.BottomEnd;
+	public SnackbarLocation Location { get; set; } = SnackbarLocation.BottomEnd;
 
 	[Parameter]
 	public int DefaultDelay { get; set; } = 5000;
@@ -51,7 +51,7 @@
 		Dictionary<string, object> attributes = base.BuildAttributes();
 		var classes = "snackbar-stack position-fixed p-3";
 
-		classes += Position.Value switch
+		classes += Location.Value switch
 		{
 			"top" => " top-0 start-50 translate-middle-x",
 			"top-start" => " top-0 start-0",
@@ -76,37 +76,38 @@
 			await SnackbarInterop.Initialize();
 			_isInitialized = true;
 		}
+
 		await base.OnAfterRenderAsync(firstRender);
 	}
 
-    /// <summary>
-    /// Pushes the message to the stack to be shown as a snackbar.
-    /// </summary>
-    /// <param name="message">Message text.</param>
-    /// <param name="color">Message color.</param>
-    /// <param name="options">Additional message options.</param>
-    /// <returns>Returns awaitable task.</returns>
-    public async ValueTask Push(string message, Color? color = null, Action<SnackbarOptions>? options = null)
-    {
-        await Push(message, null, color, options);
-    }
+	/// <summary>
+	/// Pushes the message to the stack to be shown as a snackbar.
+	/// </summary>
+	/// <param name="message">Message text.</param>
+	/// <param name="color">Message color.</param>
+	/// <param name="options">Additional message options.</param>
+	/// <returns>Returns awaitable task.</returns>
+	public async ValueTask Push(string message, Color? color = null, Action<SnackbarOptions>? options = null)
+	{
+		await Push(message, null, color, options);
+	}
 
-    /// <summary>
-    /// Pushes custom content to the stack to be shown as a snackbar.
-    /// </summary>
-    /// <param name="content">Custom content template.</param>
-    /// <param name="color">Message color.</param>
-    /// <param name="options">Additional message options.</param>
-    /// <returns>Returns awaitable task.</returns>
-    public async ValueTask Push(RenderFragment content, Color? color = null, Action<SnackbarOptions>? options = null)
-    {
-        await Push(null, content, color, options);
-    }
+	/// <summary>
+	/// Pushes custom content to the stack to be shown as a snackbar.
+	/// </summary>
+	/// <param name="content">Custom content template.</param>
+	/// <param name="color">Message color.</param>
+	/// <param name="options">Additional message options.</param>
+	/// <returns>Returns awaitable task.</returns>
+	public async ValueTask Push(RenderFragment content, Color? color = null, Action<SnackbarOptions>? options = null)
+	{
+		await Push(null, content, color, options);
+	}
 
-    /// <summary>
-    /// Internal method to push snackbar with either message or content.
-    /// </summary>
-    private async ValueTask Push(string? message, RenderFragment? content, Color? color, Action<SnackbarOptions>? options)
+	/// <summary>
+	/// Internal method to push snackbar with either message or content.
+	/// </summary>
+	private async ValueTask Push(string? message, RenderFragment? content, Color? color, Action<SnackbarOptions>? options)
 	{
 		var snackbarOptions = new SnackbarOptions();
 		options?.Invoke(snackbarOptions);
@@ -153,7 +154,7 @@
 		await Closed.InvokeAsync(new SnackbarClosedEventArgs(key, reason));
 	}
 
-	protected override void Dispose(bool disposing)
+	public override void Dispose()
 	{
 		foreach (Timer timer in _autoHideTimers.Values)
 		{
@@ -162,5 +163,5 @@
 
 		_autoHideTimers.Clear();
 	}
-	
+
 }

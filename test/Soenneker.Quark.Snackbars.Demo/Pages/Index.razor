@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Microsoft.Extensions.Logging
+@using Soenneker.Quark.Dtos.Colors
 @using Soenneker.Quark.Snackbars.Dtos
 
 @inject ILogger<Index> Logger
@@ -13,7 +14,7 @@
     </div>
 
     <!-- SnackbarStack -->
-    <SnackbarStack @ref="_snackbarStack" Position="@_currentPosition" Closed="@OnSnackbarClosed">
+    <SnackbarStack @ref="_snackbarStack" Location="@_currentLocation" Closed="@OnSnackbarClosed">
     </SnackbarStack>
 
     <!-- Basic Usage -->
@@ -65,14 +66,14 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <select class="form-select" @onchange="@OnPositionChanged">
-                        <option value="bottom-end" selected="@(_currentPosition == SnackbarLocation.BottomEnd)">Bottom End</option>
-                        <option value="bottom-start" selected="@(_currentPosition == SnackbarLocation.BottomStart)">Bottom Start</option>
-                        <option value="top-end" selected="@(_currentPosition == SnackbarLocation.TopEnd)">Top End</option>
-                        <option value="top-start" selected="@(_currentPosition == SnackbarLocation.TopStart)">Top Start</option>
+                        <option value="bottom-end" selected="@(_currentLocation == SnackbarLocation.BottomEnd)">Bottom End</option>
+                        <option value="bottom-start" selected="@(_currentLocation == SnackbarLocation.BottomStart)">Bottom Start</option>
+                        <option value="top-end" selected="@(_currentLocation == SnackbarLocation.TopEnd)">Top End</option>
+                        <option value="top-start" selected="@(_currentLocation == SnackbarLocation.TopStart)">Top Start</option>
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <Button Color="Color.Info" OnClick="@(() => _snackbarStack?.Push($"Position: {_currentPosition.Value}", Color.Info))">
+                    <Button Color="Color.Info" OnClick="@(() => _snackbarStack?.Push($"Position: {_currentLocation.Value}", Color.Info))">
                         Test Position
                     </Button>
                 </div>
@@ -100,7 +101,7 @@
 
 @code {
     private SnackbarStack? _snackbarStack;
-    private SnackbarLocation _currentPosition = SnackbarLocation.BottomEnd;
+    private SnackbarLocation _currentLocation = SnackbarLocation.BottomEnd;
 
     private Task OnSnackbarClosed(SnackbarClosedEventArgs args)
     {
@@ -111,7 +112,7 @@
     private Task OnPositionChanged(ChangeEventArgs e)
     {
         var positionValue = e.Value?.ToString();
-        _currentPosition = positionValue switch
+        _currentLocation = positionValue switch
         {
             "bottom-end" => SnackbarLocation.BottomEnd,
             "bottom-start" => SnackbarLocation.BottomStart,
