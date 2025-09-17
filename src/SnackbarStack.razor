@@ -62,8 +62,7 @@
 			_ => " bottom-0 end-0"
 		};
 
-		attributes["class"] = AppendToClass(attributes.GetValueOrDefault("class")
-			?.ToString(), classes);
+		AppendToClassAttr(attributes, classes);
 		attributes["style"] = "z-index: 1055;";
 
 		return attributes;
