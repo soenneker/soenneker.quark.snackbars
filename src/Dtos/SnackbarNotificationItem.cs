@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
-using Soenneker.Quark.Dtos.Colors;
+using Soenneker.Quark.Components.Builders;
+using Soenneker.Quark.Components.Builders.Colors;
 
 namespace Soenneker.Quark.Snackbars.Dtos;
 
@@ -21,7 +22,7 @@ public sealed record SnackbarNotificationItem(
     string Key,
     string Message,
     string? Title,
-    Color Color,
+    CssValue<ColorBuilder> Color,
     RenderFragment? Content,
     bool ShowClose,
     string? CloseText,

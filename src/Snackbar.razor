@@ -1,26 +1,38 @@
 @using Soenneker.Extensions.String
+@using Soenneker.Quark.Components.Builders
+@using Soenneker.Quark.Components.Builders.Colors
 @using Soenneker.Quark.Divs
-@using Soenneker.Quark.Dtos.Colors
 @using Soenneker.Quark.Snackbars.Dtos
 @using Soenneker.Quark.Snackbars.Enums
 @inherits Soenneker.Quark.Components.Element
 
-<CascadingValue Value="@this" IsFixed="true">
-    <Div @attributes="BuildAttributes()" role="alert" aria-live="assertive" aria-atomic="true">
-        <Div @attributes="GetContentAttributes()">
+<CascadingValue Value="@this" IsFixed="true" >
+    <Div @attributes="BuildAttributes()" role="alert" aria-live="assertive" aria-atomic="true" >
+        <Div @attributes="GetContentAttributes()" >
             @ChildContent
         </Div>
     </Div>
 </CascadingValue>
 
 @code {
-    [Parameter] public string Key { get; set; } = "";
-    [Parameter] public bool Visible { get; set; } = true;
-    [Parameter] public Color Color { get; set; } = Color.Primary;
-    [Parameter] public int AutoHideDelay { get; set; } = 5000;
-    [Parameter] public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
 
-    [CascadingParameter] protected SnackbarStack? ParentSnackbar { get; set; }
+    [Parameter]
+    public string Key { get; set; } = "";
+
+    [Parameter]
+    public bool Visible { get; set; } = true;
+
+    [Parameter]
+    public CssValue<ColorBuilder> Color { get; set; } = Components.Builders.Colors.Color.Primary;
+
+    [Parameter]
+    public int AutoHideDelay { get; set; } = 5000;
+
+    [Parameter]
+    public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
+
+    [CascadingParameter]
+    protected SnackbarStack? ParentSnackbar { get; set; }
 
     protected override Dictionary<string, object> BuildAttributes()
     {
@@ -48,7 +60,14 @@
     {
         var inner = new Dictionary<string, object>(1);
 
-        string bgClass = Color.IsTheme ? $"bg-{Color.Theme}" : $"bg-{Color.Css}";
+        var isTheme = Color.TryGetBootstrapThemeToken(out string token);
+
+
+        string? bgClass = null;
+
+        if (isTheme)
+            bgClass = $"bg-{token}";
+
         var cls = $"snackbar-content {bgClass} text-white rounded shadow p-3";
         inner["class"] = cls;
 
@@ -72,4 +91,5 @@
         await InvokeAsync(StateHasChanged);
         await Closed.InvokeAsync(new SnackbarClosedEventArgs(Key, reason));
     }
+
 }

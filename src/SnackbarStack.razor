@@ -1,5 +1,6 @@
+@using Soenneker.Quark.Components.Builders
+@using Soenneker.Quark.Components.Builders.Colors
 @using Soenneker.Quark.Divs
-@using Soenneker.Quark.Dtos.Colors
 @using Soenneker.Quark.Snackbars.Abstract
 @using Soenneker.Quark.Snackbars.Dtos
 @using Soenneker.Quark.Snackbars.Enums
@@ -86,7 +87,7 @@
 	/// <param name="color">Message color.</param>
 	/// <param name="options">Additional message options.</param>
 	/// <returns>Returns awaitable task.</returns>
-	public async ValueTask Push(string message, Color? color = null, Action<SnackbarOptions>? options = null)
+	public async ValueTask Push(string message, CssValue<ColorBuilder>? color = null, Action<SnackbarOptions>? options = null)
 	{
 		await Push(message, null, color, options);
 	}
@@ -98,7 +99,7 @@
 	/// <param name="color">Message color.</param>
 	/// <param name="options">Additional message options.</param>
 	/// <returns>Returns awaitable task.</returns>
-	public async ValueTask Push(RenderFragment content, Color? color = null, Action<SnackbarOptions>? options = null)
+	public async ValueTask Push(RenderFragment content, CssValue<ColorBuilder>? color = null, Action<SnackbarOptions>? options = null)
 	{
 		await Push(null, content, color, options);
 	}
@@ -106,7 +107,7 @@
 	/// <summary>
 	/// Internal method to push snackbar with either message or content.
 	/// </summary>
-	private async ValueTask Push(string? message, RenderFragment? content, Color? color, Action<SnackbarOptions>? options)
+	private async ValueTask Push(string? message, RenderFragment? content, CssValue<ColorBuilder>? color, Action<SnackbarOptions>? options)
 	{
 		var snackbarOptions = new SnackbarOptions();
 		options?.Invoke(snackbarOptions);
