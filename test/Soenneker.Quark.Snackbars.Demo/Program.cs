@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Web;
@@ -9,6 +9,7 @@ using Microsoft.JSInterop;
 using Serilog;
 using Serilog.Debugging;
 using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
+using Soenneker.Quark.Themes.Registrars;
 using Soenneker.Quark.Snackbars.Registrars;
 
 namespace Soenneker.Quark.Snackbars.Demo;
@@ -30,6 +31,8 @@ public sealed class Program
             {
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
+
+            builder.Services.AddEmptyThemeProviderAsScoped();
 
             builder.Services.AddSnackbarAsScoped();
 
