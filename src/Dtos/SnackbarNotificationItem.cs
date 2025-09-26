@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Soenneker.Quark.Components.Builders;
-using Soenneker.Quark.Components.Builders.Colors;
 
 namespace Soenneker.Quark;
 
