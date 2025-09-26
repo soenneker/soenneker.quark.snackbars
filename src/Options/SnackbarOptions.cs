@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace Soenneker.Quark.Snackbars.Options;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Configuration options for snackbar notifications.

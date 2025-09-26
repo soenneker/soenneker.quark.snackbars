@@ -1,6 +1,6 @@
 using Intellenum;
 
-namespace Soenneker.Quark.Snackbars.Enums;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Specifies the reason that a snackbar was closed.

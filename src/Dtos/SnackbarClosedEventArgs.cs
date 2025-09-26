@@ -1,6 +1,6 @@
 using Soenneker.Quark.Snackbars.Enums;
 
-namespace Soenneker.Quark.Snackbars.Dtos;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Provides data for the snackbar closed event.

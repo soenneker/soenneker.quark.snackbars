@@ -4,7 +4,7 @@ using Soenneker.Quark.Snackbars.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Utils.AsyncSingleton;
 
-namespace Soenneker.Quark.Snackbars;
+namespace Soenneker.Quark;
 
 ///<inheritdoc cref="ISnackbarInterop"/>
 public sealed class SnackbarInterop : ISnackbarInterop

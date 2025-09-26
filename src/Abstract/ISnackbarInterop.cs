@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Soenneker.Quark.Snackbars.Abstract;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Provides JavaScript interop methods for loading CSS resources for Snackbar components.

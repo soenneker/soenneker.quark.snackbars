@@ -1,6 +1,6 @@
 using Intellenum;
 
-namespace Soenneker.Quark.Snackbars.Enums;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Defines the snackbar location.
