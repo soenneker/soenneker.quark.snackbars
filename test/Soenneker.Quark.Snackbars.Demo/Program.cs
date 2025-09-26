@@ -10,7 +10,6 @@ using Serilog;
 using Serilog.Debugging;
 using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
 using Soenneker.Quark;
-using Soenneker.Quark.Snackbars.Registrars;
 
 namespace Soenneker.Quark.Snackbars.Demo;
 

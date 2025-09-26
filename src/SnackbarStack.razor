@@ -1,11 +1,5 @@
-@using Soenneker.Quark.Components.Builders
-@using Soenneker.Quark.Components.Builders.Colors
-@using Soenneker.Quark.Divs
-@using Soenneker.Quark.Snackbars.Abstract
-@using Soenneker.Quark.Snackbars.Dtos
-@using Soenneker.Quark.Snackbars.Enums
-@using Soenneker.Quark.Snackbars.Options
 @using Timer = System.Timers.Timer
+
 @inherits Soenneker.Quark.Element
 @inject ISnackbarInterop SnackbarInterop
 
@@ -34,6 +28,8 @@
 </Div>
 
 @code {
+	public override string? Name { get; set; } = "SnackbarStack";
+
 	private readonly List<SnackbarNotificationItem> _notifications = [];
 	private readonly Dictionary<string, Timer> _autoHideTimers = new();
 	private bool _isInitialized;

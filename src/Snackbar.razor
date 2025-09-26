@@ -1,9 +1,4 @@
 @using Soenneker.Extensions.String
-@using Soenneker.Quark.Components.Builders
-@using Soenneker.Quark.Components.Builders.Colors
-@using Soenneker.Quark.Divs
-@using Soenneker.Quark.Snackbars.Dtos
-@using Soenneker.Quark.Snackbars.Enums
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Value="@this" IsFixed="true" >
@@ -15,6 +10,7 @@
 </CascadingValue>
 
 @code {
+	public override string? Name { get; set; } = "Snackbar";
 
     [Parameter]
     public string Key { get; set; } = "";
@@ -23,7 +19,7 @@
     public bool Visible { get; set; } = true;
 
     [Parameter]
-    public CssValue<ColorBuilder> Color { get; set; } = Components.Builders.Colors.Color.Primary;
+    public CssValue<ColorBuilder> Color { get; set; } = Quark.Color.Primary;
 
     [Parameter]
     public int AutoHideDelay { get; set; } = 5000;
